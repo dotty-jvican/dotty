@@ -24,14 +24,14 @@ mkdir -p $TEST_FOLDER && cd $TEST_FOLDER
 MANIFEST_FILE="$TEST_FOLDER/Manifest.mf"
 DEFAULT_MAIN_CLASS="Test"
 
-cat <<END >> $MANIFEST_FILE
+cat <<END > $MANIFEST_FILE
 Main-Class: $DEFAULT_MAIN_CLASS
 Class-Path: $CLASS_PATH
 END
 
 # Build jar from compiled classes
 JAR_TEST="$TEST_FOLDER/$TEST_NAME.jar"
-jar -cvfm $JAR_TEST $MANIFEST_FILE *.class
+jar -cvfm $JAR_TEST $MANIFEST_FILE *.class 2>&1 > "$TEST_FOLDER/jar.log"
 
 # Run the test, yay!
 java -jar $JAR_TEST 2>&1 > "$TEST_FOLDER/execution.log"
