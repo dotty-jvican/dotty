@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Try to autodetect real location of the script
+DOTTY_ROOT="$(readlink "$0")" # relative, symbolic links resolved
+if [[ "$DOTTY_ROOT" == "" ]]; then
+  DOTTY_ROOT="$0"
+fi
+DOTTY_ROOT="$(dirname "$DOTTY_ROOT")"
+DOTTY_ROOT="$( cd "$DOTTY_ROOT" >& /dev/null && pwd )/.."  # absolute
+
+TEST_NAME=$(echo $1 | sed 's,.*/,,')
+TEST_FOLDER="$DOTTY_ROOT/linker-tests/test-$TEST_NAME"
+mkdir -p $TEST_FOLDER && cd $TEST_FOLDER
+"$DOTTY_ROOT/bin/dotc" $1 2>&1 > "$TEST_FOLDER/compilation.out"

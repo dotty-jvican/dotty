@@ -32,6 +32,9 @@ tests/partest-generated/
 tests/locks/
 /test-classes/
 
+# Linker tests
+linker-tests/
+
 # Used in tests
 scala-scala
 

@@ -1,0 +1,6 @@
+./tests/run/t889.scala
+./tests/run/t8933c.scala
+./tests/run/t920.scala
+#./tests/run/t949.scala
+#./tests/run/t978.scala
+# ./HelloWorld.scala

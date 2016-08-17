@@ -1,0 +1,28 @@
+#!/bin/bash
+# The following script is the test runner for the dotty linker
+
+# Try to autodetect real location of the script
+DOTTY_ROOT="$(readlink "$0")" # relative, symbolic links resolved
+if [[ "$DOTTY_ROOT" == "" ]]; then
+  DOTTY_ROOT="$0"
+fi
+DOTTY_ROOT="$(dirname "$DOTTY_ROOT")"
+DOTTY_ROOT="$( cd "$DOTTY_ROOT" >& /dev/null && pwd )/.."  # absolute
+TEST_DIR="$DOTTY_ROOT/test/dotc"
+WHITELIST_FILE="$TEST_DIR/dotty-linker.whitelist"
+
+# Load common functions and variables
+source $DOTTY_ROOT/bin/common
+
+# CLASS_PATH is derived from the DOTTY_ROOT and SCALA_LIBRARY_JAR
+CLASS_PATH="-Xbootclasspath/a:.:$DOTTY_ROOT/target/scala-$SCALA_BINARY_VERSION/classes/:.:$SCALA_LIBRARY_JAR"
+
+build_test_paths() {
+  cat $1 | grep -v '#'| grep -v "^$"| sed "s,\.,$DOTTY_ROOT," 
+}
+
+TEST_PATHS=$(build_test_paths $WHITELIST_FILE)
+
+# The quotes in the echo matter, don't change
+echo "$TEST_PATHS" |
+  xargs -P 10 -I ScalaFile "$DOTTY_ROOT/bin/compile-test" ScalaFile
