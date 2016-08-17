@@ -22,7 +22,9 @@ build_test_paths() {
 }
 
 TEST_PATHS=$(build_test_paths $WHITELIST_FILE)
+CONCURRENT_COMPILATION=10
 
 # The quotes in the echo matter, don't change
 echo "$TEST_PATHS" |
-  xargs -P 10 -I ScalaFile "$DOTTY_ROOT/bin/compile-test" ScalaFile
+  xargs -P $CONCURRENT_COMPILATION -I ScalaFile "$DOTTY_ROOT/bin/compile-test" ScalaFile
+

@@ -8,7 +8,30 @@ fi
 DOTTY_ROOT="$(dirname "$DOTTY_ROOT")"
 DOTTY_ROOT="$( cd "$DOTTY_ROOT" >& /dev/null && pwd )/.."  # absolute
 
-TEST_NAME=$(echo $1 | sed 's,.*/,,')
+# Load common functions and variables
+source $DOTTY_ROOT/bin/common
+
+# CLASS_PATH is derived from the DOTTY_ROOT and SCALA_LIBRARY_JAR
+CLASS_PATH="a . $DOTTY_ROOT/target/scala-$SCALA_BINARY_VERSION/classes/ . $SCALA_LIBRARY_JAR"
+
+# Filter test names and compile with dotty
+TEST_NAME=$(echo $1 | sed 's,.*/,,' | sed 's,\.scala,,')
 TEST_FOLDER="$DOTTY_ROOT/linker-tests/test-$TEST_NAME"
 mkdir -p $TEST_FOLDER && cd $TEST_FOLDER
-"$DOTTY_ROOT/bin/dotc" $1 2>&1 > "$TEST_FOLDER/compilation.out"
+"$DOTTY_ROOT/bin/dotc" $1 2>&1 > "$TEST_FOLDER/compilation.log"
+
+# Build Manifest.mf
+MANIFEST_FILE="$TEST_FOLDER/Manifest.mf"
+DEFAULT_MAIN_CLASS="Test"
+
+cat <<END >> $MANIFEST_FILE
+Main-Class: $DEFAULT_MAIN_CLASS
+Class-Path: $CLASS_PATH
+END
+
+# Build jar from compiled classes
+JAR_TEST="$TEST_FOLDER/$TEST_NAME.jar"
+jar -cvfm $JAR_TEST $MANIFEST_FILE *.class
+
+# Run the test, yay!
+java -jar $JAR_TEST 2>&1 > "$TEST_FOLDER/execution.log"
